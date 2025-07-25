@@ -14,7 +14,7 @@ class FrontendConfigsModel(BaseModel):
 class ConfigsModel(BaseModel):
     host: str
     port: int
-    debug: bool
+    camera_retry_interval: int
     network_table: NetworkTableConfigsModel
     frontend: FrontendConfigsModel
 
@@ -30,7 +30,7 @@ except Exception as e:
         configs = ConfigsModel(
             host="localhost",
             port=8000,
-            debug=False,
+            camera_retry_interval=5,
             network_table=NetworkTableConfigsModel(
                 server = "10.XX.XX.2",
                 table = "raspberry_pi"
