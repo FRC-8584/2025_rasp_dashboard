@@ -17,4 +17,4 @@ class SettingsModel(BaseModel):
     red_balance:  int   = Field(1350, ge=0, le=4095)
     blue_balance: int   = Field(1350, ge=0, le=4095)
     hsv_scope:    HSV_SCOPE
-    box_object:   bool  = False
+    box_object:   bool  = True

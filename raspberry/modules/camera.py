@@ -13,26 +13,34 @@ YOLO_MODELS_PATH = Path(__file__).parent.parent / "yolo_models/object_model.pt"
 class Camera:
     def __init__(self, camera_index: int, retry_interval: int):
         self.detection_result: ObjectData = None
-        self.settings = SettingsModel(
-            gain=50,
-            black_level=20,
-            red_balance=1000,
-            blue_balance=1000,
-            hsv_scope=HSV_SCOPE(
-                h_min=0, h_max=180,
-                s_min=0, s_max=255,
-                v_min=0, v_max=255
-            )
-        )
+        self.settings:SettingsModel = None
+
         self.camera_index = camera_index
         self.retry_interval = retry_interval
+
         self.lock = threading.Lock()
+
         self.cap = None
         self.connected = False
         self.keep_running = True
         self.ret = False
         self.corrected_frame = None
         self.model = YOLO(YOLO_MODELS_PATH)
+
+        self.update_settings(
+            SettingsModel(
+                gain=50,
+                black_level=0,
+                red_balance=1000,
+                blue_balance=1000,
+                hsv_scope=HSV_SCOPE(
+                    hue_min=0, hue_max=10,
+                    sat_min=100, sat_max=255,
+                    val_min=100, val_max=255
+                ),
+                box_object=True
+            )
+        )
         self._start_monitor()
 
     def update_settings(self, settings: SettingsModel):
@@ -50,8 +58,6 @@ class Camera:
                         self.cap.release()
                         self.cap = None
                     self._reconnect()
-            if self.cap is not None:
-                print(self.cap.isOpened())
             time.sleep(self.retry_interval)
 
     def _reconnect(self):
@@ -109,6 +115,7 @@ class Camera:
                         M = cv.moments(largest)
                         if M["m00"] == 0:
                             return ObjectData(detected=False, x=0, y=0, a=0)
+                        
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
                         

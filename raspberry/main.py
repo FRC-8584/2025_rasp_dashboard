@@ -28,6 +28,7 @@ async def background_process(camera: Camera, nt: NetworkTable):
 async def lifespan(app: FastAPI):
     camera = get_camera()
     nt = get_networktable()
+    
     task = asyncio.create_task(background_process(camera, nt))
     yield
     task.cancel()

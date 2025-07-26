@@ -1,6 +1,5 @@
 from networktables import NetworkTables
 import time
-
 class NetworkTable:
     def __init__(self, server: str, table_name: str):
         NetworkTables.initialize(server=server)
