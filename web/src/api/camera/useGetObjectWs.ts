@@ -8,20 +8,16 @@ type ResultType = {
   a: number;
 };
 
-export function GetObjectWs(): ResultType {
+export function useGetObjectWs(): ResultType {
     const [result, setResult] = useState<ResultType>({ error: true, detected: false, x: 0, y: 0, a: 0 });
-
     const ws = useRef<WebSocket | null>(null);
 
     useEffect(() => {
         const url = `${import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws")}/get_object`;
-        
         ws.current = new WebSocket(url);
-        
         ws.current.onopen = () => {
             console.log("WebSocket `get_object` connected");
         };
-      
         ws.current.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
@@ -30,16 +26,13 @@ export function GetObjectWs(): ResultType {
                 setResult({ error: true, detected: false, x: 0, y: 0, a: 0 });
             }
         };
-      
         ws.current.onclose = () => {
             console.log("WebSocket disconnected");
         };
-      
         ws.current.onerror = (e) => {
             console.error("WebSocket error", e);
             setResult({ error: true, detected: false, x: 0, y: 0, a: 0 });
         };
-      
         return () => {
             ws.current?.close();
         };
