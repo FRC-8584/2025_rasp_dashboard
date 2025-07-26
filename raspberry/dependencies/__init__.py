@@ -1,2 +1,2 @@
-from .camera_dependencies import *
-from .networktable_dependencies import *
+from .camera_instance import *
+from .networktable_instance import *

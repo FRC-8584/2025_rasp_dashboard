@@ -22,7 +22,7 @@ class NetworkTable:
     def put_boolean(self, key: str, value: bool):
         self.table.putBoolean(key, value)
 
-    def get_boolean(self, key: str, default: bool = False) -> bool:
+    def get_booloen(self, key: str, default: bool = False) -> bool:
         return self.table.getBoolean(key, default)
 
     def add_listener(self, callback):

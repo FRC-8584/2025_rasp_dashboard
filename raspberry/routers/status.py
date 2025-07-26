@@ -1,7 +1,7 @@
 import asyncio
 from fastapi import APIRouter, WebSocket, Depends, WebSocketDisconnect
 from schemas import SettingsModel
-from instances import get_camera, get_networktable
+from dependencies import get_camera, get_networktable
 from modules import Camera, NetworkTable
 from configs import CAMERA_RETRY_INTERVAL
 

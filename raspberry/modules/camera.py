@@ -6,20 +6,31 @@ import base64
 from typing import Optional
 from pathlib import Path
 from ultralytics import YOLO
-from schemas import SettingsModel, ObjectData
+from schemas import SettingsModel, ObjectData, HSV_SCOPE
 
-YOLO_MODELS_PATH = Path(__file__).parent.parent / "yolo_models/configs.json"
+YOLO_MODELS_PATH = Path(__file__).parent.parent / "yolo_models/object_model.pt"
 
 class Camera:
     def __init__(self, camera_index: int, retry_interval: int):
         self.detection_result: ObjectData = None
-        self.settings = SettingsModel()
+        self.settings = SettingsModel(
+            gain=50,
+            black_level=20,
+            red_balance=1000,
+            blue_balance=1000,
+            hsv_scope=HSV_SCOPE(
+                h_min=0, h_max=180,
+                s_min=0, s_max=255,
+                v_min=0, v_max=255
+            )
+        )
         self.camera_index = camera_index
         self.retry_interval = retry_interval
         self.lock = threading.Lock()
         self.cap = None
         self.connected = False
         self.keep_running = True
+        self.ret = False
         self.corrected_frame = None
         self.model = YOLO(YOLO_MODELS_PATH)
         self._start_monitor()
@@ -34,8 +45,13 @@ class Camera:
     def _monitor_camera(self):
         while self.keep_running:
             with self.lock:
-                if not self.connected or self.cap is None or not self.cap.isOpened():
+                if not self.connected or self.cap is None or not self.ret:
+                    if self.cap:
+                        self.cap.release()
+                        self.cap = None
                     self._reconnect()
+            if self.cap is not None:
+                print(self.cap.isOpened())
             time.sleep(self.retry_interval)
 
     def _reconnect(self):
@@ -57,8 +73,8 @@ class Camera:
     def process(self) -> Optional[ObjectData]:
         with self.lock:
             if self.cap and self.connected:
-                ret, frame = self.cap.read()
-                if ret:
+                self.ret, frame = self.cap.read()
+                if self.ret:
                     frame = frame.astype(np.float32)
                     # black level
                     frame = np.maximum(frame - self.settings.black_level, 0)
@@ -126,7 +142,9 @@ class Camera:
                         
                         self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
                         return self.detection_result
-            return None 
+                else:
+                    self.connected = False
+                    return None 
         
     def get_corrected_frame_base64(self) -> Optional[str]:
         with self.lock:
