@@ -9,7 +9,7 @@ class HSV_SCOPE(BaseModel):
     val_min: int = Field(0  , ge=0, le=255)
     val_max: int = Field(255, ge=0, le=255)
 
-class Settings(BaseModel):
+class SettingsModel(BaseModel):
     type:         Literal["color", "coral"] = "color"
     min_area:     float = Field(0.1, ge=0, le=1)
     gain:         int   = Field(..., ge=0, le=100)

@@ -2,16 +2,18 @@ import cv2 as cv
 import numpy as np
 import time
 import threading
+import base64
 from typing import Optional
 from pathlib import Path
 from ultralytics import YOLO
-from schemas import Settings, ObjectData
+from schemas import SettingsModel, ObjectData
 
 YOLO_MODELS_PATH = Path(__file__).parent.parent / "yolo_models/configs.json"
 
 class Camera:
     def __init__(self, camera_index: int, retry_interval: int):
-        self.settings = Settings()
+        self.detection_result: ObjectData = None
+        self.settings = SettingsModel()
         self.camera_index = camera_index
         self.retry_interval = retry_interval
         self.lock = threading.Lock()
@@ -22,7 +24,7 @@ class Camera:
         self.model = YOLO(YOLO_MODELS_PATH)
         self._start_monitor()
 
-    def update_settings(self, settings: Settings):
+    def update_settings(self, settings: SettingsModel):
         self.settings = settings
     
     def _start_monitor(self):
@@ -99,7 +101,8 @@ class Camera:
                         norm_y = -((cy / h) * 2 - 1)     
                         norm_a = area / (w*h)   
 
-                        return ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
+                        self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
+                        return self.detection_result
                     else:
                         results = self.model(self.corrected_frame)
                         boxes = results[0].boxes
@@ -121,12 +124,19 @@ class Camera:
                         norm_y = -((cy / h) * 2 - 1)
                         norm_a = area / (w * h)
                         
-                        return ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
+                        self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
+                        return self.detection_result
             return None 
         
-    def get_corrected_frame(self) -> Optional[np.ndarray]:
+    def get_corrected_frame_base64(self) -> Optional[str]:
         with self.lock:
-            return self.corrected_frame.copy() if self.corrected_frame is not None else None
+            if self.corrected_frame is None:
+                return None
+            success, buffer = cv.imencode('.jpg', self.corrected_frame)
+            if not success:
+                return None
+            jpg_as_text = base64.b64encode(buffer).decode('utf-8')
+            return jpg_as_text
         
     def shutdown(self):
         self.keep_running = False

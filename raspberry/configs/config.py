@@ -9,12 +9,11 @@ class NetworkTableConfigsModel(BaseModel):
 
 class FrontendConfigsModel(BaseModel):
     url: str
-    allowed_origins: List[str]
-
 class ConfigsModel(BaseModel):
     host: str
     port: int
     camera_retry_interval: int
+    allowed_origins: List[str]
     network_table: NetworkTableConfigsModel
     frontend: FrontendConfigsModel
 
@@ -30,14 +29,14 @@ except Exception as e:
         configs = ConfigsModel(
             host="localhost",
             port=8000,
-            camera_retry_interval=5,
+            allowed_origins=["http://127.0.0.1:3000"],
+            camera_retry_interval=3,
             network_table=NetworkTableConfigsModel(
                 server = "10.XX.XX.2",
                 table = "raspberry_pi"
             ),
             frontend=FrontendConfigsModel(
-                url="http://127.0.0.1:3000",
-                allowed_origins=["http://127.0.0.1:3000"]
+                url="http://127.0.0.1:3000"
             )
         )
         f.write(configs.model_dump_json(indent=4))
@@ -47,4 +46,10 @@ except Exception as e:
 
 HOST = configs.host
 PORT = configs.port
-DEBUG = configs.debug
+ALLOWED_ORIGINS = configs.allowed_origins
+CAMERA_RETRY_INTERVAL = configs.camera_retry_interval
+
+NETWORK_TABLE_SERVER = configs.network_table.server
+NETWORK_TABLE_TABLE = configs.network_table.table
+
+FRONTEND_URL = configs.frontend.url
