@@ -21,7 +21,7 @@ export default function Main() {
 
     const [cameraSettings, setCameraSettings] = useState<Settings>({
         type: "color",
-        gain: 0,
+        gain: 100,
         black_level: 0,
         red_balance: 1000,
         blue_balance: 1000,
@@ -55,6 +55,7 @@ export default function Main() {
                 ]}
             />
             <fieldset className={styles.settings}>
+                <legend className={styles.legend}>Controls</legend>
                 <Options label="Process tyoe" options={TypeOptions} default_option={TypeOptions[0]}      onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev, type: new_option }))}}/>
                 <Options label="Show" options={ShowOptions} default_option={ShowOptions[0]}              onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev, show_as: new_option }))}}/>
                 <ValueBar label="Gain" min={0} max={100} value={cameraSettings.gain}                     onChange={(value) => setCameraSettings((prev) => ({ ...prev, gain: value }))}         disable={false}/>
