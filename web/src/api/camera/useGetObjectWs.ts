@@ -13,7 +13,7 @@ export function useGetObjectWs(): ResultType {
     const ws = useRef<WebSocket | null>(null);
 
     useEffect(() => {
-        const url = `${import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws")}/get_object`;
+        const url = `${import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws")}/camera/get_object`;
         ws.current = new WebSocket(url);
         ws.current.onopen = () => {
             console.log("WebSocket `get_object` connected");

@@ -28,7 +28,7 @@ export function useUpdateSettingsWs() : ResultType {
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const url = import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws") + "/update_settings";
+    const url = `${import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws")}/settings/update_settings`;
     ws.current = new WebSocket(url);
 
     ws.current.onopen = () => {

@@ -10,7 +10,7 @@ export function useGetFrameWs(): ResultType {
     const ws = useRef<WebSocket | null>(null);
   
     useEffect(() => {
-        const url = `${import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws")}/get_frame`;
+        const url = `${import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws")}/camera/get_frame`;
         ws.current = new WebSocket(url);
         ws.current.onopen = () => {
             console.log("WebSocket `get_frame` connected");
