@@ -11,7 +11,8 @@ class HSV_SCOPE(BaseModel):
 
 class SettingsModel(BaseModel):
     type:         Literal["color", "coral"] = "color"
-    min_area:     float = Field(0.1, ge=0, le=1)
+    show_as:      Literal["normal", "mask"] = "normal"
+    min_area:     float = Field(0, ge=0, le=100)
     gain:         int   = Field(0, ge=0, le=100)
     black_level:  int   = Field(100, ge=0, le=255)
     red_balance:  int   = Field(1350, ge=0, le=4095)

@@ -18,24 +18,21 @@ export default function Options({label, options, default_option, onChange} : Opt
 
     return(
         <div id={label+"_options"} className={styles.wrapper}>
-            <fieldset className={styles.fieldset}>
-                <legend className={styles.legend}>{label}</legend>
-                {options.map((option)=>{
-                    return (
-                        <div className={styles.options} id={"option_"+option}>
-                            <input
-                              className={styles.radio}
-                              id={option + "_radio"}
-                              type="radio"
-                              name={label + "_radio_group"}
-                              checked={option === currentOption}
-                              onChange={() => onOptionChange(option)}
-                            />
-                            <a className={styles.label}>{option}</a>
-                        </div>
-                    )
-                })}
-            </fieldset>
+            {options.map((option)=>{
+                return (
+                    <div className={styles.options} id={"option_"+option}>
+                        <input
+                          className={styles.radio}
+                          id={option + "_radio"}
+                          type="radio"
+                          name={label + "_radio_group"}
+                          checked={option === currentOption}
+                          onChange={() => onOptionChange(option)}
+                        />
+                        <a className={styles.label}>{option}</a>
+                    </div>
+                )
+            })}
         </div>
     );
 }

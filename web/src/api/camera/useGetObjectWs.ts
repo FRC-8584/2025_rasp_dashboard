@@ -22,6 +22,7 @@ export function useGetObjectWs(): ResultType {
             try {
                 const data = JSON.parse(event.data);
                 setResult(data)
+                console.log(data)
             } catch {
                 setResult({ error: true, detected: false, x: 0, y: 0, a: 0 });
             }

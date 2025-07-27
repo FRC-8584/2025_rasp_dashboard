@@ -48,7 +48,7 @@ async def get_frame(websocket: WebSocket, camera: Camera = Depends(get_camera)):
                 print("Error getting frame:", e)
                 await websocket.send_json({"error": True, "image": None})
 
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.01)
 
     except WebSocketDisconnect:
         print("Client disconnected from /get_frame")

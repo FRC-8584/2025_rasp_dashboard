@@ -1,27 +1,24 @@
-import { useState } from "react";
 import styles from "./index.module.scss";
 
-type OptionsProps = {
+type ValueBarProps = {
   label: string;
   min: number;
   max: number;
-  default_value: number;
+  value: number;
   onChange: (value: number) => void;
   disable: boolean;
 };
 
-export default function ValueBar({ label, min, max, default_value, onChange, disable}: OptionsProps) {
-  const [value, setValue] = useState<number>(default_value);
+export default function ValueBar({ label, min, max, value, onChange, disable}: ValueBarProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = Number(e.target.value);
-    setValue(newValue);
     onChange(newValue);
   };
 
   return (
     <div id={label + "_valueBar"} className={styles.wrapper}>
-      <label className={`${styles.label} ${styles.disable}`}>{label}</label>
+      <label className={`${styles.label} ${disable ? styles.disable : ""}`}>{label}</label>
       <input
         id={label + "_input"}
         className={styles.bar}

@@ -22,7 +22,7 @@ async def background_process(camera: Camera, nt: NetworkTable):
                 put_nt_object_data(False, 0, 0, 0)
             else:
                 put_nt_object_data(result.detected, result.x, result.y, result.a)
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0.01)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
