@@ -34,22 +34,22 @@ async def error(websocket: WebSocket, camera: Camera = Depends(get_camera), nt: 
     await websocket.accept()
     try:
         while True:
-            camera_error = not camera.connected or not camera.corrected_frame
-            networktable_error = not nt.is_connected
-            any_error = camera_error or networktable_error
+            camera_error = not camera.connected or camera.corrected_frame is None
+            networktable_connected = nt.is_connected
+            any_error = camera_error or not networktable_connected
             messages = []
             if camera_error:
                 if not camera.connected:
                     messages.append("Camera not connected.")
                 elif not camera.corrected_frame:
                     messages.append("Camera has no valid frame.")
-            if networktable_error:
+            if not networktable_connected:
                 messages.append("NetworkTable not connected.")
 
             await websocket.send_json({
                 "error": any_error,
                 "camera_error": camera_error,
-                "networktable_error": networktable_error,
+                "networktable_connected": networktable_connected,
                 "message": " | ".join(messages) if messages else "No error."
             })
             await asyncio.sleep(0.1)

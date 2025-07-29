@@ -18,6 +18,7 @@ export default function Options({label, options, default_option, onChange} : Opt
 
     return(
         <div id={label+"_options"} className={styles.wrapper}>
+            <label className={styles.label}>{label}</label>
             {options.map((option)=>{
                 return (
                     <div className={styles.options} id={"option_"+option}>
@@ -25,11 +26,10 @@ export default function Options({label, options, default_option, onChange} : Opt
                           className={styles.radio}
                           id={option + "_radio"}
                           type="radio"
-                          name={label + "_radio_group"}
                           checked={option === currentOption}
                           onChange={() => onOptionChange(option)}
                         />
-                        <a className={styles.label}>{option}</a>
+                        <label className={styles.label}>{option}</label>
                     </div>
                 )
             })}
