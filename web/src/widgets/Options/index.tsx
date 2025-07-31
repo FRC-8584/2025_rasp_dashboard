@@ -19,20 +19,22 @@ export default function Options({label, options, default_option, onChange} : Opt
     return(
         <div id={label+"_options"} className={styles.wrapper}>
             <label className={styles.label}>{label}</label>
-            {options.map((option)=>{
-                return (
-                    <div className={styles.options} id={"option_"+option}>
-                        <input
-                          className={styles.radio}
-                          id={option + "_radio"}
-                          type="radio"
-                          checked={option === currentOption}
-                          onChange={() => onOptionChange(option)}
-                        />
-                        <label className={styles.label}>{option}</label>
-                    </div>
-                )
-            })}
+            <div className={styles.options}>
+                {options.map((option)=>{
+                    return (
+                        <div className={styles.option} id={"option_"+option}>
+                            <input
+                              className={styles.radio}
+                              id={option + "_radio"}
+                              type="radio"
+                              checked={option === currentOption}
+                              onChange={() => onOptionChange(option)}
+                            />
+                            <label className={styles.label}>{option}</label>
+                        </div>
+                    )
+                })}
+            </div>
         </div>
     );
 }

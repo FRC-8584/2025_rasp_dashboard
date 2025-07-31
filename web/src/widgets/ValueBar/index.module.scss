@@ -1,0 +1,52 @@
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin: 5px;
+
+    .label {
+        color: $text-color;
+        font-size: 16px;
+        font-weight: bold;
+        width: 50%;
+    }
+
+    .inputField {
+        width: 40%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        .bar {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+
+            height: 6px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+
+            transform: translateY(4px);
+        }
+
+        .bar::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 13px;
+            height: 13px;
+            background: $accent-color;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .value {
+            color: $text-color-hover;
+            font-size: 16px;
+            font-weight: bold;
+        }
+    }
+}

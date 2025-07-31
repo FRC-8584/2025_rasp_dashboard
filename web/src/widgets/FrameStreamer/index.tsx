@@ -10,7 +10,7 @@ export default function FrameStreamer({image_base64, disable} : FrameStreamerPro
         <div className={styles.wrapper}>
             {disable || !image_base64 ? (
                 <div className={styles.placeholder}>
-                    <p>Waiting for image...</p>
+                    <p>Waiting for frame...</p>
                 </div>
             ) : (
                 <img

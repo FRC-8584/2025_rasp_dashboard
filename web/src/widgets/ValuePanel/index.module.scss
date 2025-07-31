@@ -1,0 +1,45 @@
+.wrapper {
+    margin: 10px;
+
+    .fieldset {
+        display: flex;
+        border: 2px solid $accent-color-border;
+
+        .legend {
+            color: $text-color-hover;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .valueBox {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            padding: 5px;
+
+            .label {
+                color: $text-color;
+                font-size: 16px;
+                font-weight: bold;
+                margin-right: 8px;
+            }
+
+            .value {
+                color: $text-color-hover;
+                font-size: 16px;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .row {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .column {
+        flex-direction: column;
+    }
+}

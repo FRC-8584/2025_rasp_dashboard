@@ -5,12 +5,13 @@ type ValueItem = { label: string; value: string | number | boolean | null };
 type ValuePanelProps = {
   title: string;
   values: ValueItem[];
+  display: "row" | "column";
 };
 
-export default function ValuePanel({ title, values }: ValuePanelProps) {
+export default function ValuePanel({ title, values, display }: ValuePanelProps) {
   return (
     <div className={styles.wrapper}>
-      <fieldset className={styles.fieldset}>
+      <fieldset className={`${styles.fieldset} ${display == "column" ? styles.column : styles.row}`}>
         <legend className={styles.legend}>{title}</legend>
         {values.map(({ label, value }) => {
           let displayValue: string;
