@@ -5,10 +5,11 @@ type OptionsProps = {
     label: string;
     options: string[];
     default_option: string;
-    onChange: (newOption: string) => void
+    onChange: (newOption: string) => void;
+    disable: boolean;
 };
 
-export default function Options({label, options, default_option, onChange} : OptionsProps) {
+export default function Options({label, options, default_option, onChange, disable} : OptionsProps) {
     const [currentOption, setCurrentOption] = useState<string>(default_option)
 
     function onOptionChange(newOption: string) {
@@ -29,6 +30,7 @@ export default function Options({label, options, default_option, onChange} : Opt
                               type="radio"
                               checked={option === currentOption}
                               onChange={() => onOptionChange(option)}
+                              disabled={disable}
                             />
                             <label className={styles.label}>{option}</label>
                         </div>

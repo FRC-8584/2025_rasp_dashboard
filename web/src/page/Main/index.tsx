@@ -79,8 +79,8 @@ export default function Main() {
                     
             <fieldset className={styles.settings}>
                 <legend className={styles.legend}>Controls</legend>
-                <Options label="Process tyoe" options={TypeOptions} default_option={TypeOptions[0]}      onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev, type: new_option }))}}/>
-                <Options label="Show" options={ShowOptions} default_option={ShowOptions[0]}              onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev, show_as: new_option }))}}/>
+                <Options label="Process tyoe" options={TypeOptions} default_option={TypeOptions[0]}      onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev, type: new_option }))}} disable={!connected}/>
+                {cameraSettings.type == "color" && <Options label="Show" options={ShowOptions} default_option={ShowOptions[0]}              onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev, show_as: new_option }))}} disable={!connected}/>}
                 <ValueBar label="Gain" min={0} max={100} value={cameraSettings.gain}                     onChange={(value) => setCameraSettings((prev) => ({ ...prev, gain: value }))}         disable={!connected}/>
                 <ValueBar label="Black Level" min={0} max={255} value={cameraSettings.black_level}       onChange={(value) => setCameraSettings((prev) => ({ ...prev, black_level: value }))}  disable={!connected}/> 
                 <ValueBar label="Red balance" min={0} max={4095} value={cameraSettings.red_balance}      onChange={(value) => setCameraSettings((prev) => ({ ...prev, red_balance: value }))}  disable={!connected}/>
@@ -101,7 +101,7 @@ export default function Main() {
                         <ValueBar label="Val max" min={0} max={255} value={cameraSettings.hsv_scope.val_max}   onChange={(value) => {if(value>cameraSettings.hsv_scope.val_min) setCameraSettings((prev) => ({ ...prev, hsv_scope: { ...prev.hsv_scope, val_max: value} }))}}  disable={!connected}/>     
                     </div>
                 </>}
-                <Options label="Box object" options={BoxOptions} default_option={BoxOptions[0]}          onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev,  box_object: (new_option == "yes" ? true : false)}))}}/>
+                <Options label="Box object" options={BoxOptions} default_option={BoxOptions[0]}          onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev,  box_object: (new_option == "yes" ? true : false)}))}} disable={!connected}/>
             </fieldset>
         </div>
         // :

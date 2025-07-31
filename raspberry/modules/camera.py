@@ -109,6 +109,10 @@ class Camera:
                         mask = cv.morphologyEx(mask, cv.MORPH_OPEN, kernel)
                         contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
+                        if self.settings.show_as == "mask":
+                            self.corrected_frame = mask
+                            self.corrected_frame = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
+
                         if not contours:
                             self.detection_result = ObjectData(detected=False, x=0, y=0, a=0)
                             return self.detection_result
@@ -124,9 +128,6 @@ class Camera:
                             return self.detection_result
                         
                         if self.settings.box_object:
-                            if self.settings.show_as == "mask":
-                                self.corrected_frame = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
-                        
                             x, y, w_box, h_box = cv.boundingRect(largest)
                             cv.rectangle(self.corrected_frame, (x, y), (x + w_box, y + h_box), (0, 255, 0), 2)
 
