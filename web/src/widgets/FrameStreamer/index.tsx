@@ -17,6 +17,8 @@ export default function FrameStreamer({image_base64, disable} : FrameStreamerPro
                     className={styles.image}
                     src={`data:image/jpeg;base64,${image_base64}`}
                     alt="Camera feed"
+                    width={640}
+                    height={480}
                 />
             )}
         </div>
