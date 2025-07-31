@@ -29,10 +29,13 @@ class Camera:
 
         self.update_settings(
             SettingsModel(
-                gain=50,
+                type="color",
+                show_as="normal",
+                gain=100,
                 black_level=0,
                 red_balance=1000,
                 blue_balance=1000,
+                min_area=10,
                 hsv_scope=HSV_SCOPE(
                     hue_min=0, hue_max=10,
                     sat_min=100, sat_max=255,
@@ -65,6 +68,7 @@ class Camera:
             self.cap.release()
         try:
             cap = cv.VideoCapture(self.camera_index)
+            cap.set(cv.CAP_PROP_AUTO_EXPOSURE, 0.25)
             if cap.isOpened():
                 self.cap = cap
                 self.connected = True
@@ -94,6 +98,8 @@ class Camera:
                     frame *= gain_factor
                     self.corrected_frame = np.clip(frame, 0, 255).astype(np.uint8)
 
+                    h, w = self.corrected_frame.shape[:2]
+
                     if self.settings.type == "color":
                         hsv = cv.cvtColor(self.corrected_frame, cv.COLOR_BGR2HSV)
                         lower = np.array([self.settings.hsv_scope.hue_min, self.settings.hsv_scope.sat_min, self.settings.hsv_scope.val_min])
@@ -102,27 +108,35 @@ class Camera:
                         contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
                         if not contours:
-                            return ObjectData(detected=False, x=0, y=0, a=0)
+                            self.detection_result = ObjectData(detected=False, x=0, y=0, a=0)
+                            return self.detection_result
                         
                         largest = max(contours, key=cv.contourArea)
                         area = cv.contourArea(largest)
-                        if area <= self.settings.min_area:
-                            return ObjectData(detected=False, x=0.0, y=0.0, a=0.0)
+                        norm_a = area / (w*h)
+
+                        if (norm_a * 100) <= self.settings.min_area:
+                            if self.settings.show_as == "mask":
+                                self.corrected_frame = mask
+                            self.detection_result = ObjectData(detected=False, x=0, y=0, a=norm_a)
+                            return self.detection_result
                         
                         if self.settings.box_object:
+                            if self.settings.show_as == "mask":
+                                self.corrected_frame = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
+                                
                             cv.drawContours(self.corrected_frame, [largest], -1, (0, 255, 0), 2)
 
                         M = cv.moments(largest)
                         if M["m00"] == 0:
-                            return ObjectData(detected=False, x=0, y=0, a=0)
+                            self.detection_result = ObjectData(detected=False, x=0, y=0, a=0)
+                            return self.detection_result
                         
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
                         
-                        h, w = self.corrected_frame.shape[:2]
                         norm_x = (cx / w) * 2 - 1         
-                        norm_y = -((cy / h) * 2 - 1)     
-                        norm_a = area / (w*h)   
+                        norm_y = -((cy / h) * 2 - 1)        
 
                         self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
                         return self.detection_result

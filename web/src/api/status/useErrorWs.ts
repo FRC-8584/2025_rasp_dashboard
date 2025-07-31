@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 export type ErrorStatus = {
   error: boolean;
   camera_error: boolean;
-  networktable_error: boolean;
+  networktable_connected: boolean;
   message: string;
 };
 
@@ -11,14 +11,14 @@ export function useErrorWs() {
   const [status, setStatus] = useState<ErrorStatus>({
     error: false,
     camera_error: false,
-    networktable_error: false,
+    networktable_connected: false,
     message: "No error.",
   });
 
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const url = import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws") + "/error";
+    const url = import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws") + "/status/error";
     ws.current = new WebSocket(url);
 
     ws.current.onopen = () => {

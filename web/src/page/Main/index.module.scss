@@ -1,0 +1,42 @@
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 1200px;
+    height: 795px;
+
+    .panel {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        margin-top: 15px;
+        
+        .valuePanels {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    .settings {
+        display: flex;
+        flex-direction: column;
+        margin: 10px;
+        margin-bottom: -5px;
+        width: 100%;
+
+        border: 2px solid $accent-color-border;
+
+        .legend {
+            color: $text-color-hover;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        
+        h1 {
+            color: $text-color-hover;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px;
+        }
+    }
+}

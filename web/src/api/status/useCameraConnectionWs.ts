@@ -10,7 +10,7 @@ export function useCameraConnectionWs() : ResultType {
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const url = import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws") + "/camera_connection";
+    const url = import.meta.env.VITE_API_BASE_URL.replace(/^http/, "ws") + "/status/camera_connection";
     ws.current = new WebSocket(url);
 
     ws.current.onopen = () => {
