@@ -105,6 +105,8 @@ class Camera:
                         lower = np.array([self.settings.hsv_scope.hue_min, self.settings.hsv_scope.sat_min, self.settings.hsv_scope.val_min])
                         upper = np.array([self.settings.hsv_scope.hue_max, self.settings.hsv_scope.sat_max, self.settings.hsv_scope.val_max])
                         mask = cv.inRange(hsv, lower, upper)
+                        kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
+                        mask = cv.morphologyEx(mask, cv.MORPH_OPEN, kernel)
                         contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
                         if not contours:
@@ -124,8 +126,9 @@ class Camera:
                         if self.settings.box_object:
                             if self.settings.show_as == "mask":
                                 self.corrected_frame = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
-                                
-                            cv.drawContours(self.corrected_frame, [largest], -1, (0, 255, 0), 2)
+                        
+                            x, y, w_box, h_box = cv.boundingRect(largest)
+                            cv.rectangle(self.corrected_frame, (x, y), (x + w_box, y + h_box), (0, 255, 0), 2)
 
                         M = cv.moments(largest)
                         if M["m00"] == 0:
@@ -143,24 +146,29 @@ class Camera:
                     else:
                         results = self.model(self.corrected_frame)
                         boxes = results[0].boxes
-                        if boxes is None or len(boxes) == 0:
+                        target_boxes = [b for b in boxes if int(b.cls[0]) == 1]
+
+                        if not target_boxes:
                             return ObjectData(detected=False, x=0.0, y=0.0, a=0.0)
-                        
-                        max_box = max(boxes, key=lambda b: (b.xyxy[0][2] - b.xyxy[0][0]) * (b.xyxy[0][3] - b.xyxy[0][1]))
+
+                        max_box = max(target_boxes, key=lambda b: (b.xyxy[0][2] - b.xyxy[0][0]) * (b.xyxy[0][3] - b.xyxy[0][1]))
                         x1, y1, x2, y2 = [float(v) for v in max_box.xyxy[0]]
-                        
+
                         if self.settings.box_object:
                             cv.rectangle(self.corrected_frame, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
+                            cx_int = int((x1 + x2) / 2)
+                            cy_int = int((y1 + y2) / 2)
+                            cv.circle(self.corrected_frame, (cx_int, cy_int), radius=5, color=(0, 0, 255), thickness=-1)
 
                         cx = (x1 + x2) / 2
                         cy = (y1 + y2) / 2
                         area = (x2 - x1) * (y2 - y1)
 
                         h, w = self.corrected_frame.shape[:2]
-                        norm_x = (cx / w) * 2 - 1  
+                        norm_x = (cx / w) * 2 - 1
                         norm_y = -((cy / h) * 2 - 1)
                         norm_a = area / (w * h)
-                        
+
                         self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
                         return self.detection_result
                 else:
