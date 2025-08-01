@@ -118,20 +118,8 @@ class Camera:
                             return self.detection_result
                         
                         largest = max(contours, key=cv.contourArea)
-                        
-                        M = cv.moments(largest)
-                        if M["m00"] == 0:
-                            self.detection_result = ObjectData(detected=False, x=0, y=0, a=0)
-                            return self.detection_result
-                        
-                        cx = int(M["m10"] / M["m00"])
-                        cy = int(M["m01"] / M["m00"])
-
                         area = cv.contourArea(largest)
                         norm_a = area / (w*h)
-
-                        norm_x = (cx / w) * 2 - 1         
-                        norm_y = -((cy / h) * 2 - 1) 
 
                         if (norm_a * 100) <= self.settings.min_area:
                             if self.settings.show_as == "mask":
@@ -143,24 +131,43 @@ class Camera:
                             x, y, w_box, h_box = cv.boundingRect(largest)
                             cv.rectangle(self.corrected_frame, (x, y), (x + w_box, y + h_box), (0, 255, 0), 2)
 
+                        M = cv.moments(largest)
+                        if M["m00"] == 0:
+                            self.detection_result = ObjectData(detected=False, x=0, y=0, a=0)
+                            return self.detection_result
+                        
+                        cx = int(M["m10"] / M["m00"])
+                        cy = int(M["m01"] / M["m00"])
+                        
+                        norm_x = (cx / w) * 2 - 1         
+                        norm_y = -((cy / h) * 2 - 1)        
+
                         self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
                         return self.detection_result
                     else:
-                        results = self.model(self.corrected_frame)
+                        results = self.model(self.corrected_frame, classes=[1])  
                         boxes = results[0].boxes
-                        target_boxes = [b for b in boxes if int(b.cls[0]) == 1]
+
+                        if not boxes:
+                            return ObjectData(detected=False, x=0.0, y=0.0, a=0.0)
+                        
+                        boxes_np = boxes.xyxy.cpu().numpy()
+                        classes_np = boxes.cls.cpu().numpy()
+
+                        target_boxes = [xyxy for xyxy, cls in zip(boxes_np, classes_np) if int(cls) == 1]
 
                         if not target_boxes:
                             return ObjectData(detected=False, x=0.0, y=0.0, a=0.0)
 
-                        max_box = max(target_boxes, key=lambda b: (b.xyxy[0][2] - b.xyxy[0][0]) * (b.xyxy[0][3] - b.xyxy[0][1]))
-                        x1, y1, x2, y2 = [float(v) for v in max_box.xyxy[0]]
+                        max_box = max(target_boxes, key=lambda b: (b[2] - b[0]) * (b[3] - b[1]))
+                        x1, y1, x2, y2 = max_box
 
                         if self.settings.box_object:
-                            cv.rectangle(self.corrected_frame, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
-                            cx_int = int((x1 + x2) / 2)
-                            cy_int = int((y1 + y2) / 2)
-                            cv.circle(self.corrected_frame, (cx_int, cy_int), radius=5, color=(0, 0, 255), thickness=-1)
+                            x1i, y1i, x2i, y2i = map(int, (x1, y1, x2, y2))
+                            cx_int = (x1i + x2i) // 2
+                            cy_int = (y1i + y2i) // 2
+                            cv.rectangle(self.corrected_frame, (x1i, y1i), (x2i, y2i), (255, 0, 0), 2)
+                            cv.circle(self.corrected_frame, (cx_int, cy_int), 5, (0, 0, 255), -1)
 
                         cx = (x1 + x2) / 2
                         cy = (y1 + y2) / 2

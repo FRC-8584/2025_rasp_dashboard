@@ -15,7 +15,6 @@ class ConfigsModel(BaseModel):
     camera_retry_interval: int
     allowed_origins: List[str]
     network_table: NetworkTableConfigsModel
-    frontend: FrontendConfigsModel
 
 CONFIG_PATH = Path(__file__).parent.parent / "configs.json"
 
@@ -32,7 +31,7 @@ except Exception as e:
             allowed_origins=["*"],
             camera_retry_interval=3,
             network_table=NetworkTableConfigsModel(
-                server = "10.XX.XX.2",
+                server = "10.85.84.2",
                 table = "raspberry_pi"
             )
         )
