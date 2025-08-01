@@ -94,7 +94,7 @@ class Camera:
                     b *= self.settings.blue_balance / 1000
                     # gain
                     frame = cv.merge([b, g, r])
-                    gain_factor = self.settings.gain / 100
+                    gain_factor = (self.settings.gain+50) / 100
                     frame *= gain_factor
                     self.corrected_frame = np.clip(frame, 0, 255).astype(np.uint8)
 
@@ -145,6 +145,7 @@ class Camera:
                         self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
                         return self.detection_result
                     else:
+                        self.corrected_frame = cv.resize(self.corrected_frame.copy(), [256, 192])
                         results = self.model(self.corrected_frame, classes=[1])  
                         boxes = results[0].boxes
 
@@ -179,7 +180,7 @@ class Camera:
                         norm_a = area / (w * h)
 
                         self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
-                        return self.detection_result
+                        return ObjectData(detected=True, x=0, y=0, a=0)
                 else:
                     self.connected = False
                     return None 

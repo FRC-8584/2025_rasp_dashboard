@@ -58,9 +58,9 @@ export default function Main() {
                         title={"Results"}
                         values={[
                             { label: "detected", value: get_object_error ? null : detected },
-                            { label: "X", value: get_object_error ? null : x.toFixed(1) },
-                            { label: "Y", value: get_object_error ? null : y.toFixed(1) },
-                            { label: "A", value: get_object_error ? null : a.toFixed(1) },
+                            { label: "X", value: get_object_error ? null : x.toFixed(2) },
+                            { label: "Y", value: get_object_error ? null : y.toFixed(2) },
+                            { label: "A", value: get_object_error ? null : a.toFixed(2) },
                         ]}
                         display="row"
                     />
