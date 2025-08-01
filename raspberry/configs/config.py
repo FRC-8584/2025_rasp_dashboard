@@ -27,16 +27,13 @@ try:
 except Exception as e:
     with open(CONFIG_PATH, mode="w") as f:
         configs = ConfigsModel(
-            host="localhost",
+            host="0.0.0.0",
             port=8000,
-            allowed_origins=["http://127.0.0.1:3000"],
+            allowed_origins=["*"],
             camera_retry_interval=3,
             network_table=NetworkTableConfigsModel(
                 server = "10.XX.XX.2",
                 table = "raspberry_pi"
-            ),
-            frontend=FrontendConfigsModel(
-                url="http://127.0.0.1:3000"
             )
         )
         f.write(configs.model_dump_json(indent=4))
@@ -52,4 +49,3 @@ CAMERA_RETRY_INTERVAL = configs.camera_retry_interval
 NETWORK_TABLE_SERVER = configs.network_table.server
 NETWORK_TABLE_TABLE = configs.network_table.table
 
-FRONTEND_URL = configs.frontend.url

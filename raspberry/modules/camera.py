@@ -118,8 +118,20 @@ class Camera:
                             return self.detection_result
                         
                         largest = max(contours, key=cv.contourArea)
+                        
+                        M = cv.moments(largest)
+                        if M["m00"] == 0:
+                            self.detection_result = ObjectData(detected=False, x=0, y=0, a=0)
+                            return self.detection_result
+                        
+                        cx = int(M["m10"] / M["m00"])
+                        cy = int(M["m01"] / M["m00"])
+
                         area = cv.contourArea(largest)
                         norm_a = area / (w*h)
+
+                        norm_x = (cx / w) * 2 - 1         
+                        norm_y = -((cy / h) * 2 - 1) 
 
                         if (norm_a * 100) <= self.settings.min_area:
                             if self.settings.show_as == "mask":
@@ -130,17 +142,6 @@ class Camera:
                         if self.settings.box_object:
                             x, y, w_box, h_box = cv.boundingRect(largest)
                             cv.rectangle(self.corrected_frame, (x, y), (x + w_box, y + h_box), (0, 255, 0), 2)
-
-                        M = cv.moments(largest)
-                        if M["m00"] == 0:
-                            self.detection_result = ObjectData(detected=False, x=0, y=0, a=0)
-                            return self.detection_result
-                        
-                        cx = int(M["m10"] / M["m00"])
-                        cy = int(M["m01"] / M["m00"])
-                        
-                        norm_x = (cx / w) * 2 - 1         
-                        norm_y = -((cy / h) * 2 - 1)        
 
                         self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
                         return self.detection_result
