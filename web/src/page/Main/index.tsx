@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGetFrameWs } from '../../api/camera/useGetFrameWs'
 import { useGetObjectWs } from '../../api/camera/useGetObjectWs';
 import FrameStreamer from '../../widgets/FrameStreamer';
@@ -16,8 +16,28 @@ const TypeOptions = ["color", "coral"]
 const ShowOptions = ["normal", "mask"]
 const BoxOptions = ["yes", "no"]
 
+const DefaultSettings = {
+    type: "color",
+    gain: 100,
+    black_level: 0,
+    red_balance: 1000,
+    blue_balance: 1000,
+    min_area: 10,
+    show_as: "normal",
+    box_object: true,
+    hsv_scope: {
+        hue_min: 0,
+        hue_max: 180,
+        sat_min: 0,
+        sat_max: 255,
+        val_min: 0,
+        val_max: 255,
+    }          
+}
 
 export default function Main() {
+    const setup = useRef<boolean>(false);
+
     // const { width, height } = useWindowSize();
     const { error: get_frame_error, image } = useGetFrameWs();
     const { error: get_object_error, detected, x, y, a } = useGetObjectWs();
@@ -25,27 +45,20 @@ export default function Main() {
     const { connected, message: camera_connection_message } = useCameraConnectionWs();
     const { error: error, camera_error, networktable_connected, message: error_message} = useErrorWs();
 
-    const [cameraSettings, setCameraSettings] = useState<Settings>({
-        type: "color",
-        gain: 100,
-        black_level: 0,
-        red_balance: 1000,
-        blue_balance: 1000,
-        min_area: 10,
-        show_as: "normal",
-        box_object: true,
-        hsv_scope: {
-            hue_min: 0,
-            hue_max: 180,
-            sat_min: 0,
-            sat_max: 255,
-            val_min: 0,
-            val_max: 255,
-        }          
-    });
+    const [cameraSettings, setCameraSettings] = useState<Settings>(DefaultSettings);
 
     useEffect(() => {
-        sendSettings(cameraSettings)
+        if (setup.current === false) {
+            const lastSettings = localStorage.getItem("cameraSettings")
+            if (lastSettings !== null) {
+                setCameraSettings(JSON.parse(lastSettings))
+            }
+            setup.current = true;
+        }
+        else {
+            sendSettings(cameraSettings);
+            localStorage.setItem("cameraSettings", JSON.stringify(cameraSettings));
+        }
     }, [cameraSettings])
 
     return(
@@ -102,6 +115,7 @@ export default function Main() {
                     </div>
                 </>}
                 <Options label="Box object" options={BoxOptions} default_option={BoxOptions[0]}          onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev,  box_object: (new_option == "yes" ? true : false)}))}} disable={!connected}/>
+                <div className={styles.resetButton} onClick={()=>{setCameraSettings(DefaultSettings)}}>Default Settings</div>
             </fieldset>
         </div>
         // :
