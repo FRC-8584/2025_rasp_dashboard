@@ -180,7 +180,7 @@ class Camera:
                         norm_a = area / (w * h)
 
                         self.detection_result = ObjectData(detected=True, x=norm_x, y=norm_y, a=norm_a)
-                        return ObjectData(detected=True, x=0, y=0, a=0)
+                        return self.detection_result
                 else:
                     self.connected = False
                     return None 

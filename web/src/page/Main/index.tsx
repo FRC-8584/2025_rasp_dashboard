@@ -115,7 +115,7 @@ export default function Main() {
                     </div>
                 </>}
                 <Options label="Box object" options={BoxOptions} default_option={BoxOptions[0]}          onChange={(new_option)=>{ setCameraSettings((prev) => ({ ...prev,  box_object: (new_option == "yes" ? true : false)}))}} disable={!connected}/>
-                <div className={styles.resetButton} onClick={()=>{setCameraSettings(DefaultSettings)}}>Default Settings</div>
+                <div className={styles.resetButton} onClick={()=>{setCameraSettings(DefaultSettings)}}>default</div>
             </fieldset>
         </div>
         // :
