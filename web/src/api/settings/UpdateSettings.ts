@@ -34,6 +34,10 @@ export function useUpdateSettingsWs() : ResultType {
         
         ws.current.onopen = () => {
             console.log("WebSocket `update_settings` connected");
+            const settings = localStorage.getItem("cameraSettings");
+            if (settings !== null) {
+                sendSettings(JSON.parse(settings))
+            }
         };
       
         ws.current.onclose = () => {
