@@ -1,4 +1,5 @@
 import asyncio
+import time
 from fastapi import APIRouter, WebSocket, Depends, WebSocketDisconnect
 
 from dependencies import get_camera
@@ -16,7 +17,7 @@ async def get_frame(websocket: WebSocket, camera: Camera = Depends(get_camera)):
                 frame_message = camera.get_frame_data()
                 await websocket.send_json(frame_message.model_dump_json())
             except Exception as e:
-                await websocket.send_json(FrameMessage(error=True, message=str(e), image=None).model_dump_json())
+                await websocket.send_json(FrameMessage(error=True, message=str(e), image=None, time_stamp=time.time()).model_dump_json())
 
             await asyncio.sleep(0.01)
 

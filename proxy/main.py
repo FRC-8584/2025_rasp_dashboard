@@ -1,6 +1,7 @@
 import websockets
 import asyncio
 import json
+import time
 from pydantic import BaseModel
 from typing import Optional
 import cv2 as cv
@@ -11,6 +12,7 @@ class FrameMessage(BaseModel):
     error: bool
     message: str
     image: Optional[str]
+    time_stamp: float
 
 frame_message: FrameMessage = None
 
@@ -18,7 +20,7 @@ async def connect_websocket():
     uri = "ws://localhost:7000/camera/get_frame"
 
     async with websockets.connect(uri) as websocket:
-        print("✅ WebSocket connected.")
+        print("WebSocket connected.")
         while True:
             try:
                 message = await websocket.recv()
@@ -29,6 +31,8 @@ async def connect_websocket():
                     img_data = base64.b64decode(frame_msg.image)
                     nparr = np.frombuffer(img_data, np.uint8)
                     img = cv.imdecode(nparr, cv.IMREAD_COLOR)
+
+                    print(f"latency: {(time.time()-frame_message.time_stamp)*1000:.2f}")
 
                     if img is not None:
                         cv.imshow("WebSocket Image", img)
