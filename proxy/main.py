@@ -1,6 +1,7 @@
 import websockets
 import asyncio
 import json
+import time
 from pydantic import BaseModel
 from typing import Optional
 import cv2 as cv
@@ -11,6 +12,7 @@ class FrameMessage(BaseModel):
     error: bool
     message: str
     image: Optional[str]
+    time_stamp: float
 
 frame_message: FrameMessage = None
 
@@ -31,6 +33,7 @@ async def connect_websocket():
                     img = cv.imdecode(nparr, cv.IMREAD_COLOR)
 
                     if img is not None:
+                        print(f"Latency: {((time.time()-frame_msg.time_stamp) * 1000 ):.2f}")
                         cv.imshow("WebSocket Image", img)
                         if cv.waitKey(1) & 0xFF == ord('q'):
                             break
