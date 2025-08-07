@@ -5,4 +5,4 @@ class FrameMessage(BaseModel):
     error: bool
     message: str
     image: Optional[str]
-    time_stamp: float
+    latency: float

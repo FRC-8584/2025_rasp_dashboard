@@ -56,11 +56,11 @@ class Camera:
                 if ret:
                     success, buffer = cv.imencode('.jpg', frame)
                     if not success:
-                        return FrameMessage(error=True, message="can't encode frame", image=None, time_stamp=time.time())
+                        return FrameMessage(error=True, message="can't encode frame", image=None, latency=0)
                     jpg_as_text = base64.b64encode(buffer).decode('utf-8')
-                    return FrameMessage(error=False, message="get frame successfully", image=jpg_as_text, time_stamp=time.time())
+                    return FrameMessage(error=False, message="get frame successfully", image=jpg_as_text, latency=0)
                 else:
                     self.camera_connected = False
-                    return FrameMessage(error=True, message="can't get frame", image=None, time_stamp=time.time())
+                    return FrameMessage(error=True, message="can't get frame", image=None, latency=0)
             else:
-                return FrameMessage(error=True, message="camera not connected", image=None, time_stamp=time.time())
+                return FrameMessage(error=True, message="camera not connected", image=None, latency=0)

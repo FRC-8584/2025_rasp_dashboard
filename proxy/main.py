@@ -12,20 +12,23 @@ class FrameMessage(BaseModel):
     error: bool
     message: str
     image: Optional[str]
-    time_stamp: float
+    latency: float
 
 frame_message: FrameMessage = None
 
 async def connect_websocket():
-    uri = "ws://localhost:7000/camera/get_frame"
+    uri = "ws://127.0.0.1:7000/camera/get_frame"
 
     async with websockets.connect(uri) as websocket:
         print("WebSocket connected.")
         while True:
             try:
                 message = await websocket.recv()
+                await websocket.send(json.dumps({"message": "pong"}))
                 data = json.loads(message)
                 frame_msg = FrameMessage.model_validate_json(data) 
+
+                print(f"{frame_msg.latency:.2f} ms")
 
                 if not frame_msg.error and frame_msg.image:
                     img_data = base64.b64decode(frame_msg.image)
@@ -33,7 +36,6 @@ async def connect_websocket():
                     img = cv.imdecode(nparr, cv.IMREAD_COLOR)
 
                     if img is not None:
-                        print(f"Latency: {((time.time()-frame_msg.time_stamp) * 1000 ):.2f}")
                         cv.imshow("WebSocket Image", img)
                         if cv.waitKey(1) & 0xFF == ord('q'):
                             break
