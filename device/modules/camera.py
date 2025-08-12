@@ -1,5 +1,5 @@
 from pyorbbecsdk import Pipeline, Config, OBFormat, OBSensorType
-from schemas import CameraStatus
+from schemas import CameraData
 import threading
 import time
 import cv2 as cv
@@ -11,7 +11,7 @@ from configs import DEPTH_PROFILE_FPS, DEPTH_PROFILE_HEIGHT, DEPTH_PROFILE_WIDTH
 
 class Camera:
     def __init__(self):
-        self.status: CameraStatus = CameraStatus(
+        self.status: CameraData = CameraData(
             error=True,
             connected=False,
             t_x=0,
@@ -145,5 +145,5 @@ class Camera:
                 print(self.status.message)
                 time.sleep(1)
 
-    def get_current_status(self) -> CameraStatus:
+    def get_current_status(self) -> CameraData:
         return self.status
