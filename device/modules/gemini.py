@@ -9,7 +9,7 @@ import base64
 from configs import COLOR_PROFILE_FPS, COLOR_PROFILE_HEIGHT, COLOR_PROFILE_WIDTH
 from configs import DEPTH_PROFILE_FPS, DEPTH_PROFILE_HEIGHT, DEPTH_PROFILE_WIDTH
 
-class Camera:
+class Gemini:
     def __init__(self):
         self.status: CameraData = CameraData(
             error=True,
@@ -22,6 +22,8 @@ class Camera:
             depth_image_base64=None,
             message="connecting to camera"
         )
+        self.pipeline = Pipeline()
+        self.config = Config()
         self._start_camera_process()
     
     @staticmethod
@@ -79,23 +81,18 @@ class Camera:
         thread.start()
 
     def _run_camera(self):
-        try:
-            pipeline = Pipeline()
-            config = Config()
-        except Exception:
-            raise Exception("can't connect to camera")
         while True:
             try: 
                 try:
-                    color_profiles = pipeline.get_stream_profile_list(OBSensorType.COLOR_SENSOR)
-                    depth_profiles = pipeline.get_stream_profile_list(OBSensorType.DEPTH_SENSOR)
+                    color_profiles = self.pipeline.get_stream_profile_list(OBSensorType.COLOR_SENSOR)
+                    depth_profiles = self.pipeline.get_stream_profile_list(OBSensorType.DEPTH_SENSOR)
                     color_profile = self._pick_profile(color_profiles, OBFormat.RGB, 640, 480, 30)
                     depth_profile = self._pick_profile(depth_profiles, OBFormat.Y16, 640, 400, 30)
                 
-                    config.enable_stream(color_profile)
-                    config.enable_stream(depth_profile)
+                    self.config.enable_stream(color_profile)
+                    self.config.enable_stream(depth_profile)
 
-                    pipeline.start(config)
+                    self.pipeline.start(self.config)
                 except Exception:
                     raise Exception("can't get camera profile")
 
@@ -105,7 +102,7 @@ class Camera:
                     self.status.error = False
                     self.status.message = "working normally"
                     try:
-                        frame_set = pipeline.wait_for_frames(5000)
+                        frame_set = self.pipeline.wait_for_frames(5000)
                         color_frame = frame_set.get_color_frame()
                         depth_frame = frame_set.get_depth_frame()
 
@@ -147,3 +144,17 @@ class Camera:
 
     def get_current_status(self) -> CameraData:
         return self.status
+    
+    def restart(self):
+        self.status = CameraData(
+            error=True,
+            connected=False,
+            t_x=0,
+            t_y=0,
+            t_a=0,
+            depth=0,
+            color_image_base64=None,
+            depth_image_base64=None,
+            message="connecting to camera"
+        )
+        self._start_camera_process()
