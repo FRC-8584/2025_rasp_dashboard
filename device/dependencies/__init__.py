@@ -1,1 +1,1 @@
-from .camera_instance import *
+from .gemini_instance import *
