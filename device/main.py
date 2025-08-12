@@ -1,4 +1,6 @@
 from modules import Gemini
-from dependencies import get_gemini
 
-gemini = get_gemini()
+gemini = Gemini()
+
+while True:
+    print(gemini.get_current_status().depth)

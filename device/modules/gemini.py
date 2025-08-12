@@ -81,6 +81,7 @@ class Gemini:
         thread.start()
 
     def _run_camera(self):
+        print("F")
         while True:
             try: 
                 try:
