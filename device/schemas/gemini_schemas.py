@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class CameraData(BaseModel):
+class StatusData(BaseModel):
     error: bool
     connected: bool
     t_x: float

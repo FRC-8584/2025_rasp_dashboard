@@ -1,5 +1,5 @@
 from pyorbbecsdk import Pipeline, Config, OBFormat, OBSensorType
-from schemas import CameraData
+from schemas import StatusData
 import threading
 import time
 import cv2 as cv
@@ -10,8 +10,19 @@ from configs import COLOR_PROFILE_FPS, COLOR_PROFILE_HEIGHT, COLOR_PROFILE_WIDTH
 from configs import DEPTH_PROFILE_FPS, DEPTH_PROFILE_HEIGHT, DEPTH_PROFILE_WIDTH
 
 class Gemini:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        self.status: CameraData = CameraData(
+        if getattr(self, "_initialized", False):
+            return
+        self._initialized = True
+
+        self.status: StatusData = StatusData(
             error=True,
             connected=False,
             t_x=0,
@@ -81,14 +92,13 @@ class Gemini:
         thread.start()
 
     def _run_camera(self):
-        print("F")
         while True:
             try: 
                 try:
                     color_profiles = self.pipeline.get_stream_profile_list(OBSensorType.COLOR_SENSOR)
                     depth_profiles = self.pipeline.get_stream_profile_list(OBSensorType.DEPTH_SENSOR)
-                    color_profile = self._pick_profile(color_profiles, OBFormat.RGB, 640, 480, 30)
-                    depth_profile = self._pick_profile(depth_profiles, OBFormat.Y16, 640, 400, 30)
+                    color_profile = self._pick_profile(color_profiles, OBFormat.RGB, COLOR_PROFILE_WIDTH, COLOR_PROFILE_HEIGHT, COLOR_PROFILE_FPS)
+                    depth_profile = self._pick_profile(depth_profiles, OBFormat.Y16, DEPTH_PROFILE_WIDTH, DEPTH_PROFILE_HEIGHT, DEPTH_PROFILE_FPS)
                 
                     self.config.enable_stream(color_profile)
                     self.config.enable_stream(depth_profile)
@@ -108,7 +118,7 @@ class Gemini:
                         depth_frame = frame_set.get_depth_frame()
 
                         if not color_frame or not depth_frame:
-                            continue
+                            raise Exception("can't get frame from gemini")
                     
                         color_data = color_frame.get_data()
                         depth_data = depth_frame.get_data()
@@ -123,7 +133,8 @@ class Gemini:
                         self.status.depth = depth_image[y, x]
 
                     except Exception:
-                        raise Exception("failed to get image from camera")
+                        time.sleep(0.01)
+                        continue
 
                     try:
                         # color image
@@ -137,25 +148,23 @@ class Gemini:
                         raise Exception("failed to encode images")
                     
             except Exception as e:
-                self.status.error = True
-                self.status.connected = False
-                self.status.message = str(e)
-                print(self.status.message)
+                try:
+                    self.pipeline.stop()
+                except Exception:
+                    pass
+                self.status = StatusData(
+                    error=True,
+                    connected=False,
+                    t_x=0,
+                    t_y=0,
+                    t_a=0,
+                    depth=0,
+                    color_image_base64=None,
+                    depth_image_base64=None,
+                    message="connecting to camera"
+                )
+                print(f"Camera error: {e}, retrying...")
                 time.sleep(1)
 
-    def get_current_status(self) -> CameraData:
+    def get_current_status(self) -> StatusData:
         return self.status
-    
-    def restart(self):
-        self.status = CameraData(
-            error=True,
-            connected=False,
-            t_x=0,
-            t_y=0,
-            t_a=0,
-            depth=0,
-            color_image_base64=None,
-            depth_image_base64=None,
-            message="connecting to camera"
-        )
-        self._start_camera_process()

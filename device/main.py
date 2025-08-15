@@ -1,6 +1,40 @@
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+import json
+import asyncio
+
 from modules import Gemini
+from configs import ALLOWED_ORIGINS, HOST, PORT
 
-gemini = Gemini()
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
-while True:
-    print(gemini.get_current_status().depth)
+@app.get("/")
+def root():
+    gemini = Gemini()
+    return {"message": "device server working normally", "gemini_status": gemini.get_current_status().model_dump_json()}
+
+@app.get("/gemini/get_status")
+async def get_status(websocket: WebSocket):
+    try:
+        websocket.accept()
+        print("websocket /gemini/get_status connected")
+        gemini = Gemini()
+        while True:
+            status = gemini.get_current_status()
+            websocket.send_text(json.dumps(status.model_dump_json()))
+            asyncio.wait(0.01)
+    except WebSocketDisconnect:
+        print("disconnected from /gemini/get_status")
+    except Exception as e:
+        print(str(e))
+
+if __name__ == "__main__":
+    uvicorn.run(app="main:app", host=HOST, port=PORT, reload=True)

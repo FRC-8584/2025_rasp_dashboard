@@ -1,1 +1,1 @@
-from .gemini import *
+from .gemini import Gemini
