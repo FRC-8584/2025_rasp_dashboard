@@ -7,6 +7,7 @@ import asyncio
 from modules import Gemini
 from configs import ALLOWED_ORIGINS, HOST, PORT
 
+Gemini()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -19,7 +20,7 @@ app.add_middleware(
 @app.get("/")
 def root():
     gemini = Gemini()
-    return {"message": "device server working normally", "gemini_status": gemini.get_current_status().model_dump_json()}
+    return {"message": "device server working normally", "gemini_status": Gemini().get_current_status().model_dump_json()}
 
 @app.get("/gemini/get_status")
 async def get_status(websocket: WebSocket):
@@ -28,7 +29,7 @@ async def get_status(websocket: WebSocket):
         print("websocket /gemini/get_status connected")
         gemini = Gemini()
         while True:
-            status = gemini.get_current_status()
+            status = Gemini().get_current_status()
             websocket.send_text(json.dumps(status.model_dump_json()))
             asyncio.wait(0.01)
     except WebSocketDisconnect:
@@ -37,4 +38,4 @@ async def get_status(websocket: WebSocket):
         print(str(e))
 
 if __name__ == "__main__":
-    uvicorn.run(app="main:app", host=HOST, port=PORT, reload=True)
+    uvicorn.run(app="main:app", host=HOST, port=PORT, reload=False)
