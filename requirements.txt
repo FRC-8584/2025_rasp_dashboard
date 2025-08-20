@@ -1,0 +1,8 @@
+pydantic
+opencv-python
+numpy
+uvicorn[standard]
+fastapi
+ultralytics 
+pyorbbecsdk
+pynetworktables

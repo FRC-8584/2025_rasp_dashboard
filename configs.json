@@ -1,0 +1,19 @@
+{
+    "host": "0.0.0.0",
+    "port": 8000,
+    "allowed_origins": [
+        "*"
+    ],
+    "gemini_configs": {
+        "color_profile": {
+            "width": 640,
+            "height": 480,
+            "fps": 30
+        },
+        "depth_profile": {
+            "width": 640,
+            "height": 400,
+            "fps": 30
+        }
+    }
+}
